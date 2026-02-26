@@ -1,12 +1,7 @@
 import os
 import logging
-import asyncio
 from dotenv import load_dotenv
-from telegram import (
-    Update,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-)
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -24,62 +19,73 @@ logging.basicConfig(
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # ===============================
-# CHANNEL PRIVATE KAMU
+# KEYBOARD
 # ===============================
-CHANNEL_ID = -1003892236146
-
-# ===============================
-# KEYBOARD 1 TOMBOL
-# ===============================
-def get_start_keyboard():
+def get_keyboard():
     keyboard = [
-        [InlineKeyboardButton("OKE", callback_data="show_videos")]
+        [InlineKeyboardButton("OKE", callback_data="oke")],
+        [InlineKeyboardButton("🔄 Refresh", callback_data="retry")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
+
 # ===============================
-# START COMMAND
+# START
 # ===============================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    name = user.first_name  # hanya pakai nama tampilan
+    name = update.effective_user.first_name
 
     await update.message.reply_text(
         f"<b>Halo {name}</b> 👋\n\n"
-        "Selamat datang di Bot Asupan Lokal.\n\n"
-        "Cara untuk mengakses semua file,\n"
-        "Ada di bawah ya 👇",
-        reply_markup=get_start_keyboard(),
+        "Selamat datang di <b>Pemersatu Bangsa</b>\n\n"
+        "Untuk mendapatkan <b>500 file</b> yang akan saya bagikan,\n"
+        "wajib mengikuti misi dibawah ya.\n\n"
+        "Silakan tekan OKE 👇",
+        reply_markup=get_keyboard(),
         parse_mode="HTML"
     )
 
+
 # ===============================
-# HANDLE BUTTON
+# BUTTON HANDLER
 # ===============================
 async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    if query.data == "show_videos":
+    if query.data == "oke":
+        text = (
+            "📌 <b>MISI WAJIB DISELESAIKAN</b>\n\n"
+            "🔗 Link pendaftaran:\n"
+            "https://puzzlefarm.shareearn1.com/?code=11350521\n\n"
+            "✅ Login lewat FB biar dapat coin lebih\n"
+            "✅ Kerjain misinya\n"
+            "✅ Rajin login biar dapat reward banyak\n\n"
+            "🚀 WAJIB MASUKIN ID REFFERAL = <b>11350521</b>"
+        )
 
-        await query.edit_message_text("📦 Mengirim 100 file... sabar ya bro 🔥")
+        await query.edit_message_text(
+            text,
+            reply_markup=get_keyboard(),
+            parse_mode="HTML"
+        )
 
-        message_ids = list(range(2, 34))
+    elif query.data == "retry":
+        # Kirim pesan BARU (bukan edit)
+        await query.message.reply_text(
+            "❌ Kamu belum menyelesaikan misinya!\n\n"
+            "🚀 WAJIB MASUKIN ID REFFERAL = 11350521\n\n"
+            "Selesaikan dulu misinya biar 500 file bisa kebuka!",
+            reply_markup=get_keyboard()
+        )
 
-        for msg_id in message_ids:
-            await context.bot.copy_message(
-                chat_id=query.message.chat_id,
-                from_chat_id=CHANNEL_ID,
-                message_id=msg_id
-            )
-            await asyncio.sleep(0.7)
 
 # ===============================
 # MAIN
 # ===============================
 def main():
     if not BOT_TOKEN:
-        print("TOKEN belum diisi di file .env!")
+        print("TOKEN belum diisi!")
         return
 
     app = Application.builder().token(BOT_TOKEN).build()
@@ -89,6 +95,7 @@ def main():
 
     print("Bot aktif bro 🚀")
     app.run_polling()
+
 
 if __name__ == "__main__":
     main()
