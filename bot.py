@@ -7,6 +7,8 @@ from telegram.ext import (
     CommandHandler,
     CallbackQueryHandler,
     ContextTypes,
+    MessageHandler,
+    filters,
 )
 
 load_dotenv()
@@ -44,14 +46,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Silakan tekan OKE 👇"
     )
 
-    # Copy video dari channel private
     sent_msg = await context.bot.copy_message(
         chat_id=update.effective_chat.id,
         from_chat_id=-1003834385991,
         message_id=2
     )
 
-    # Edit caption + tambahkan tombol
     await context.bot.edit_message_caption(
         chat_id=update.effective_chat.id,
         message_id=sent_msg.message_id,
@@ -73,10 +73,13 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "📌 <b>MISI WAJIB DISELESAIKAN</b>\n\n"
             "🔗 Link pendaftaran:\n"
             "https://puzzlefarm.shareearn1.com/?code=11350521\n\n"
-            "✅ Login lewat FB biar dapat coin lebih\n"
-            "✅ Kerjain misinya\n"
-            "✅ Rajin login biar dapat reward banyak\n\n"
-            "🚀 WAJIB MASUKIN ID REFFERAL = <b>11350521</b>"
+            "✅ Wajib login menggunakan <b>Facebook</b>\n"
+            "🔒 Tenang, tidak ada input ID atau password di dalam game,\n"
+            "cukup konek akun FB dengan game tersebut.\n\n"
+            "✅ Wajib capai <b>90.000 coin</b>\n"
+            "📸 Setelah mencapai 90.000 coin wajib kirim screenshot bukti\n\n"
+            "🚀 WAJIB MASUKIN ID REFFERAL = <b>11350521</b>\n\n"
+            "🎁 Semua ini GRATIS untuk akses 1000 file."
         )
 
         await query.edit_message_caption(
@@ -88,10 +91,33 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data == "retry":
         await query.message.reply_text(
             "❌ Kamu belum menyelesaikan misinya!\n\n"
-            "🚀 WAJIB MASUKIN ID REFFERAL = 11350521\n\n"
-            "Selesaikan dulu misinya biar 1000 file bisa kebuka!",
-            reply_markup=get_keyboard()
+            "📌 Cara masukkan ID Referral:\n"
+            "1️⃣ Buka game dari link tadi\n"
+            "2️⃣ Masuk ke bagian <b>Invite</b>\n"
+            "3️⃣ Di bagian 'Yang Mengundang Saya' isi dengan:\n"
+            "👉 <b>11350521</b>\n\n"
+            "🎯 Wajib login pakai Facebook\n"
+            "🎯 Wajib capai 90.000 coin\n"
+            "📸 Setelah itu kirim screenshot bukti ke bot ini!",
+            reply_markup=get_keyboard(),
+            parse_mode="HTML"
         )
+
+
+# ===============================
+# HANDLE FOTO (AUTO BALAS JIKA KIRIM SCREENSHOT)
+# ===============================
+async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "❌ Kamu belum menyelesaikan misinya!\n\n"
+        "📌 Pastikan sudah:\n"
+        "✅ Login pakai Facebook\n"
+        "✅ Masukkan ID Referral 11350521 di menu Invite\n"
+        "✅ Capai 90.000 coin\n\n"
+        "Jika sudah memenuhi semua syarat, tunggu verifikasi admin.",
+        reply_markup=get_keyboard(),
+        parse_mode="HTML"
+    )
 
 
 # ===============================
@@ -106,6 +132,7 @@ def main():
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(handle_button))
+    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
 
     print("Bot aktif bro 🚀")
     app.run_polling()
