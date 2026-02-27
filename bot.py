@@ -33,14 +33,29 @@ def get_keyboard():
 # START
 # ===============================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    name = update.effective_user.first_name
+    user = update.effective_user
+    name = user.last_name if user.last_name else user.first_name
 
-    await update.message.reply_text(
+    caption_text = (
         f"<b>Halo {name}</b> 👋\n\n"
         "Selamat datang di <b>Pemersatu Bangsa</b>\n\n"
-        "Untuk mendapatkan <b>500 file</b> yang akan saya bagikan,\n"
+        "Untuk mendapatkan <b>1000 file</b> yang akan saya bagikan,\n"
         "wajib mengikuti misi dibawah ya.\n\n"
-        "Silakan tekan OKE 👇",
+        "Silakan tekan OKE 👇"
+    )
+
+    # Copy video dari channel private
+    sent_msg = await context.bot.copy_message(
+        chat_id=update.effective_chat.id,
+        from_chat_id=-1003834385991,
+        message_id=2
+    )
+
+    # Edit caption + tambahkan tombol
+    await context.bot.edit_message_caption(
+        chat_id=update.effective_chat.id,
+        message_id=sent_msg.message_id,
+        caption=caption_text,
         reply_markup=get_keyboard(),
         parse_mode="HTML"
     )
@@ -64,18 +79,17 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "🚀 WAJIB MASUKIN ID REFFERAL = <b>11350521</b>"
         )
 
-        await query.edit_message_text(
-            text,
+        await query.edit_message_caption(
+            caption=text,
             reply_markup=get_keyboard(),
             parse_mode="HTML"
         )
 
     elif query.data == "retry":
-        # Kirim pesan BARU (bukan edit)
         await query.message.reply_text(
             "❌ Kamu belum menyelesaikan misinya!\n\n"
             "🚀 WAJIB MASUKIN ID REFFERAL = 11350521\n\n"
-            "Selesaikan dulu misinya biar 500 file bisa kebuka!",
+            "Selesaikan dulu misinya biar 1000 file bisa kebuka!",
             reply_markup=get_keyboard()
         )
 
