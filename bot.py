@@ -1,5 +1,6 @@
 import os
 import logging
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -21,10 +22,11 @@ logging.basicConfig(
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # ===============================
-# ADMIN & STORAGE
+# ADMIN & FILE STORAGE
 # ===============================
 ADMIN_ID = 7640270845
-users = set()
+USER_FILE = "users.txt"
+
 
 # ===============================
 # KEYBOARD
@@ -38,11 +40,29 @@ def get_keyboard():
 
 
 # ===============================
+# SAVE USER (PERMANENT)
+# ===============================
+def save_user(user_id):
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    users = {}
+    if os.path.exists(USER_FILE):
+        with open(USER_FILE, "r") as f:
+            for line in f:
+                uid, date = line.strip().split("|")
+                users[int(uid)] = date
+
+    if user_id not in users:
+        with open(USER_FILE, "a") as f:
+            f.write(f"{user_id}|{today}\n")
+
+
+# ===============================
 # START
 # ===============================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
-    users.add(user.id)  # simpan user
+    save_user(user.id)
 
     name = user.last_name if user.last_name else user.first_name
 
@@ -70,19 +90,41 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ===============================
-# LIST USERS (ADMIN ONLY)
+# STATISTIK BOT (ADMIN ONLY)
 # ===============================
-async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
         await update.message.reply_text("❌ Kamu bukan admin.")
         return
 
-    if not users:
+    if not os.path.exists(USER_FILE):
         await update.message.reply_text("Belum ada user.")
         return
 
-    user_list = "\n".join(str(uid) for uid in users)
-    await update.message.reply_text(f"📋 Daftar User:\n\n{user_list}")
+    total = 0
+    today_count = 0
+    yesterday_count = 0
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+
+    with open(USER_FILE, "r") as f:
+        for line in f:
+            uid, date = line.strip().split("|")
+            total += 1
+            if date == today:
+                today_count += 1
+            if date == yesterday:
+                yesterday_count += 1
+
+    text = (
+        "📊 <b>Statistik Bot</b>\n\n"
+        f"Total User: {total}\n"
+        f"User Hari Ini: {today_count}\n"
+        f"User Kemarin: {yesterday_count}"
+    )
+
+    await update.message.reply_text(text, parse_mode="HTML")
 
 
 # ===============================
@@ -98,10 +140,9 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "🔗 Link pendaftaran:\n"
             "https://puzzlefarm.shareearn1.com/?code=11350521\n\n"
             "1️⃣ Wajib login menggunakan <b>Facebook</b>\n"
-            "🔒 Tenang, tidak ada input ID atau password di dalam game, hanya konek lewat game.\n"
-            "2️⃣ Wajib mencapai <b>229.000 coin</b> (Akan diverifikasi oleh admin, tidak bisa curang)\n"
-            "3️⃣ Setelah itu kirim bukti screenshot di bot ini (Akan segera diverifikasi admin)\n"
-            "4️⃣ Setelah semuanya beres file akan dikirim secara berkala\n\n"
+            "2️⃣ Wajib mencapai <b>229.000 coin</b>\n"
+            "3️⃣ Kirim bukti screenshot di bot ini\n"
+            "4️⃣ File akan dikirim setelah verifikasi\n\n"
             "🎁 Semua ini GRATIS untuk akses 1000 file."
         )
 
@@ -114,10 +155,6 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data == "retry":
         await query.message.reply_text(
             "❌ <b>Misi Belum Selesai</b>\n\n"
-            "1️⃣ Wajib login menggunakan Facebook\n"
-            "2️⃣ Wajib mencapai <b>229.000 coin</b> (Diverifikasi admin)\n"
-            "3️⃣ Kirim bukti screenshot di bot ini\n"
-            "4️⃣ File akan dikirim secara berkala setelah verifikasi\n\n"
             "Silakan selesaikan misinya dulu ya.",
             reply_markup=get_keyboard(),
             parse_mode="HTML"
@@ -128,17 +165,13 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # HANDLE FOTO
 # ===============================
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     await context.bot.copy_message(
         chat_id=update.effective_chat.id,
         from_chat_id=-1003834385991,
         message_id=3,
         caption=(
-            "❌ <b>COIN yang kamu peroleh belum memenuhi syarat.</b>\n\n"
-            "Harap naikin coin di dalam game tadi sebanyak <b>229.000 coin</b>.\n\n"
-            "Jika sudah memenuhi syarat, kirim bukti screenshot kembali.\n"
-            "Akan segera diverifikasi admin.\n\n"
-            "Terimakasih."
+            "❌ <b>COIN belum memenuhi syarat.</b>\n\n"
+            "Naikin coin sampai 229.000 lalu kirim ulang screenshot."
         ),
         parse_mode="HTML"
     )
@@ -155,7 +188,7 @@ def main():
     app = Application.builder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("users", list_users))
+    app.add_handler(CommandHandler("stats", stats))
     app.add_handler(CallbackQueryHandler(handle_button))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
 
