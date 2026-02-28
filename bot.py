@@ -1,6 +1,5 @@
 import os
 import logging
-import json
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -20,23 +19,12 @@ logging.basicConfig(
 )
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_ID = 7640270845  # ID ADMIN KAMU
 
 # ===============================
-# LOAD & SAVE USERS
+# ADMIN & STORAGE
 # ===============================
-def load_users():
-    try:
-        with open("users.json", "r") as f:
-            return set(json.load(f))
-    except:
-        return set()
-
-def save_users(users):
-    with open("users.json", "w") as f:
-        json.dump(list(users), f)
-
-users = load_users()
+ADMIN_ID = 7640270845
+users = set()
 
 # ===============================
 # KEYBOARD
@@ -54,11 +42,7 @@ def get_keyboard():
 # ===============================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
-    user_id = user.id
-
-    # SIMPAN USER
-    users.add(user_id)
-    save_users(users)
+    users.add(user.id)  # simpan user
 
     name = user.last_name if user.last_name else user.first_name
 
@@ -86,15 +70,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ===============================
-# COMMAND CEK TOTAL USER (ADMIN ONLY)
+# LIST USERS (ADMIN ONLY)
 # ===============================
-async def total_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
+        await update.message.reply_text("❌ Kamu bukan admin.")
         return
 
-    await update.message.reply_text(
-        f"📊 Total pengguna bot: {len(users)} orang"
-    )
+    if not users:
+        await update.message.reply_text("Belum ada user.")
+        return
+
+    user_list = "\n".join(str(uid) for uid in users)
+    await update.message.reply_text(f"📋 Daftar User:\n\n{user_list}")
 
 
 # ===============================
@@ -140,6 +128,7 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # HANDLE FOTO
 # ===============================
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
     await context.bot.copy_message(
         chat_id=update.effective_chat.id,
         from_chat_id=-1003834385991,
@@ -166,7 +155,7 @@ def main():
     app = Application.builder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("users", total_users))
+    app.add_handler(CommandHandler("users", list_users))
     app.add_handler(CallbackQueryHandler(handle_button))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
 
