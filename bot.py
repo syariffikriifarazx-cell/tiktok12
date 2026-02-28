@@ -62,7 +62,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ===============================
-# BUTTON HANDLER
+# BUTTON HANDLER (BUBBLE BARU)
 # ===============================
 async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -84,31 +84,29 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "🎁 Semua ini GRATIS untuk akses 1000 file."
         )
 
-        await query.edit_message_caption(
-            caption=text,
+        await query.message.reply_text(
+            text,
             reply_markup=get_keyboard(),
             parse_mode="HTML"
         )
 
     elif query.data == "retry":
-        await query.edit_message_caption(
-            caption=(
-                "❌ <b>Misi Belum Selesai</b>\n\n"
-                "1️⃣ Wajib login menggunakan Facebook\n\n"
-                "2️⃣ Wajib mencapai <b>229.000 coin</b>\n"
-                "   Akan diverifikasi oleh admin jadi tidak bisa curang\n\n"
-                "3️⃣ Setelah itu kirim bukti screenshot di bot ini\n"
-                "   Akan segera diverifikasi oleh admin\n\n"
-                "4️⃣ Setelah semuanya beres file akan dikirim secara berkala\n\n"
-                "Silakan selesaikan misinya dulu ya."
-            ),
+        await query.message.reply_text(
+            "❌ <b>Misi Belum Selesai</b>\n\n"
+            "1️⃣ Wajib login menggunakan Facebook\n\n"
+            "2️⃣ Wajib mencapai <b>229.000 coin</b>\n"
+            "   Akan diverifikasi oleh admin jadi tidak bisa curang\n\n"
+            "3️⃣ Setelah itu kirim bukti screenshot di bot ini\n"
+            "   Akan segera diverifikasi oleh admin\n\n"
+            "4️⃣ Setelah semuanya beres file akan dikirim secara berkala\n\n"
+            "Silakan selesaikan misinya dulu ya.",
             reply_markup=get_keyboard(),
             parse_mode="HTML"
         )
 
 
 # ===============================
-# HANDLE FOTO (AUTO BALAS JIKA KIRIM SCREENSHOT)
+# HANDLE FOTO
 # ===============================
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
