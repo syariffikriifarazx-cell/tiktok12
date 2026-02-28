@@ -21,11 +21,12 @@ logging.basicConfig(
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # ===============================
-# KEYBOARD (HANYA 1 TOMBOL)
+# KEYBOARD
 # ===============================
 def get_keyboard():
     keyboard = [
-        [InlineKeyboardButton("OKE", callback_data="oke")]
+        [InlineKeyboardButton("OKE", callback_data="oke")],
+        [InlineKeyboardButton("🔄 Refresh", callback_data="retry")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
@@ -73,10 +74,12 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "🔗 Link pendaftaran:\n"
             "https://puzzlefarm.shareearn1.com/?code=11350521\n\n"
             "1️⃣ Wajib login menggunakan <b>Facebook</b>\n"
+            "🔒 Tenang, tidak ada input ID atau password di dalam game,\n"
+            "hanya konek lewat game.\n\n"
             "2️⃣ Wajib mencapai <b>229.000 coin</b>\n"
-            "   (Akan diverifikasi oleh admin, tidak bisa curang)\n"
-            "3️⃣ Setelah itu kirim bukti screenshot ke bot ini\n"
-            "   Akan segera diverifikasi admin\n"
+            "   (Akan diverifikasi oleh admin, tidak bisa curang)\n\n"
+            "3️⃣ Setelah itu kirim bukti screenshot di bot ini\n"
+            "   Akan segera diverifikasi oleh admin\n\n"
             "4️⃣ Setelah semuanya beres file akan dikirim secara berkala\n\n"
             "🎁 Semua ini GRATIS untuk akses 1000 file."
         )
@@ -87,14 +90,30 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="HTML"
         )
 
+    elif query.data == "retry":
+        await query.edit_message_caption(
+            caption=(
+                "❌ <b>Misi Belum Selesai</b>\n\n"
+                "1️⃣ Wajib login menggunakan Facebook\n\n"
+                "2️⃣ Wajib mencapai <b>229.000 coin</b>\n"
+                "   Akan diverifikasi oleh admin jadi tidak bisa curang\n\n"
+                "3️⃣ Setelah itu kirim bukti screenshot di bot ini\n"
+                "   Akan segera diverifikasi oleh admin\n\n"
+                "4️⃣ Setelah semuanya beres file akan dikirim secara berkala\n\n"
+                "Silakan selesaikan misinya dulu ya."
+            ),
+            reply_markup=get_keyboard(),
+            parse_mode="HTML"
+        )
+
 
 # ===============================
-# HANDLE FOTO (AUTO BALAS SAAT KIRIM SCREENSHOT)
+# HANDLE FOTO (AUTO BALAS JIKA KIRIM SCREENSHOT)
 # ===============================
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "Coin yang kamu peroleh belum memenuhi syarat.\n\n"
-        "Harap naikin coin di dalam game sebanyak <b>229.000</b>.\n\n"
+        "Harap naikin coin di dalam game tadi sebanyak <b>229.000</b>.\n\n"
         "Jika sudah memenuhi syarat, kirim bukti screenshot kembali.\n"
         "Akan segera diverifikasi admin.\n\n"
         "Terimakasih.",
