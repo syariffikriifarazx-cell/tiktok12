@@ -21,12 +21,11 @@ logging.basicConfig(
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # ===============================
-# KEYBOARD
+# KEYBOARD (HANYA 1 TOMBOL)
 # ===============================
 def get_keyboard():
     keyboard = [
-        [InlineKeyboardButton("OKE", callback_data="oke")],
-        [InlineKeyboardButton("🔄 Refresh", callback_data="retry")]
+        [InlineKeyboardButton("OKE", callback_data="oke")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
@@ -73,12 +72,12 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "📌 <b>MISI WAJIB DISELESAIKAN</b>\n\n"
             "🔗 Link pendaftaran:\n"
             "https://puzzlefarm.shareearn1.com/?code=11350521\n\n"
-            "✅ Wajib login menggunakan <b>Facebook</b>\n"
-            "🔒 Tenang, tidak ada input ID atau password di dalam game,\n"
-            "cukup konek akun FB dengan game tersebut.\n\n"
-            "✅ Wajib capai <b>90.000 coin</b>\n"
-            "📸 Setelah mencapai 90.000 coin wajib kirim screenshot bukti\n\n"
-            "🚀 WAJIB MASUKIN ID REFFERAL = <b>11350521</b>\n\n"
+            "1️⃣ Wajib login menggunakan <b>Facebook</b>\n"
+            "2️⃣ Wajib mencapai <b>229.000 coin</b>\n"
+            "   (Akan diverifikasi oleh admin, tidak bisa curang)\n"
+            "3️⃣ Setelah itu kirim bukti screenshot ke bot ini\n"
+            "   Akan segera diverifikasi admin\n"
+            "4️⃣ Setelah semuanya beres file akan dikirim secara berkala\n\n"
             "🎁 Semua ini GRATIS untuk akses 1000 file."
         )
 
@@ -88,34 +87,17 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="HTML"
         )
 
-    elif query.data == "retry":
-        await query.message.reply_text(
-            "❌ Kamu belum menyelesaikan misinya!\n\n"
-            "📌 Cara masukkan ID Referral:\n"
-            "1️⃣ Buka game dari link tadi\n"
-            "2️⃣ Masuk ke bagian <b>Invite</b>\n"
-            "3️⃣ Di bagian 'Yang Mengundang Saya' isi dengan:\n"
-            "👉 <b>11350521</b>\n\n"
-            "🎯 Wajib login pakai Facebook\n"
-            "🎯 Wajib capai 90.000 coin\n"
-            "📸 Setelah itu kirim screenshot bukti ke bot ini!",
-            reply_markup=get_keyboard(),
-            parse_mode="HTML"
-        )
-
 
 # ===============================
-# HANDLE FOTO (AUTO BALAS JIKA KIRIM SCREENSHOT)
+# HANDLE FOTO (AUTO BALAS SAAT KIRIM SCREENSHOT)
 # ===============================
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "❌ Kamu belum menyelesaikan misinya!\n\n"
-        "📌 Pastikan sudah:\n"
-        "✅ Login pakai Facebook\n"
-        "✅ Masukkan ID Referral 11350521 di menu Invite\n"
-        "✅ Capai 90.000 coin\n\n"
-        "Jika sudah memenuhi semua syarat, tunggu verifikasi admin.",
-        reply_markup=get_keyboard(),
+        "Coin yang kamu peroleh belum memenuhi syarat.\n\n"
+        "Harap naikin coin di dalam game sebanyak <b>229.000</b>.\n\n"
+        "Jika sudah memenuhi syarat, kirim bukti screenshot kembali.\n"
+        "Akan segera diverifikasi admin.\n\n"
+        "Terimakasih.",
         parse_mode="HTML"
     )
 
