@@ -94,7 +94,9 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "oke":
         text = (
+            
             "📌 <b>MISI WAJIB DISELESAIKAN</b>\n\n"
+                "WAJIB DOWNLOAD GAME INI, LINK DI BAWAH\n\n"
             "🔗 Link pendaftaran:\n"
             "https://puzzlefarm.shareearn1.com/?code=11350521\n\n"
             "1️⃣ Wajib login menggunakan <b>Facebook</b>\n"
@@ -165,3 +167,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
