@@ -150,8 +150,8 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Share link ke dalam grup WhatsApp dengan minimal 200 anggota.\n\n"
             "Caption wajib seperti contoh:\n"
             "<b>Asupan Video Viral Terbaru 🔥</b>\n"
-            "Akses gratis di sini 👇\n"
-            "https://puzzlefarm.shareearn1.com/?code=11350521\n\n"
+            "LINK YANG HARUS DI SEBAR 👇\n"
+            "https://t.me/pemersatubangsa69bot\n\n"
             "📸 Setelah share, WAJIB screenshot:\n"
             "✔️ Tampilan grup\n"
             "✔️ Jumlah anggota (minimal 200)\n"
@@ -204,3 +204,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
